@@ -182,6 +182,7 @@ if __name__ == '__main__':
             to_score = 9
             while not finish:
                 print("<-- Tour de l'IA -->")
+                print("L'IA réfléchit")
                 hint, number = ai.get_hint_combination(grid, good_grid_ind, neutrals, negative_grid_ind, murderer)
                 print("L'IA propose", hint, number)
                 in_rules = input('La proposition est-elle dans les règles ? (o/n)') == 'o'
@@ -255,11 +256,13 @@ if __name__ == '__main__':
                     finish = True
                     print("L'IA a perdu !")
                 else:
+                    print("L'IA réfléchit")
                     hint, number = ai.get_hint_combination(grid, good_grid_ind, neutrals, negative_grid_ind, murderer)
                     print("L'IA propose", hint, number)
                     in_rules = input('La proposition est-elle dans les règles ?') == 'o'
                     while not in_rules:
                         del ai.word2vec[hint]
+                        print("L'IA réfléchit")
                         hint, number = ai.get_hint_combination(grid, good_grid_ind, neutrals, negative_grid_ind,
                                                                murderer)
                         print("L'IA propose", hint, number)
