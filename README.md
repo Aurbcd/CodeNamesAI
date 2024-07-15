@@ -4,7 +4,7 @@
 L'IA peut être en mode "Spy" ou "Guesser". Dans les deux cas, elle utilise des techniques de word embedding pour soit proposer des indices pertinents ou bien réagir au mieux aux indices fournis. Les mots du vocabulaires sont comparés avec la distance "cosine similarity".
 
 ## Results
-A compléter.
+A compléter. Le modèle ne connait suffisament de mots pour être efficace.
 
 ## Requirements
 - difflib

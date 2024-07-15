@@ -1,9 +1,7 @@
-import numpy as np
-
 from init import *
 
 class CodeNameAI:
-    def __init__(self, path, rules):
+    def __init__(self, path, rules, weights=(8,1,2,5)):
         #Import model
         self.model_ini = KeyedVectors.load_word2vec_format(path, binary=True, unicode_errors="ignore")
         #Build dictionnary
@@ -17,6 +15,15 @@ class CodeNameAI:
                 self.word2vec[split_k[0]] = self.model_ini.get_vector(k)
         self.hints_to_remember = []
         self.rules = rules
+        self.weights = weights
+
+    def update_grid(self, grid, grid_labels):
+        for i in range(len(grid)):
+            w = grid[i]
+            if w not in self.word2vec.keys() and w is not None:
+                grid[i] = difflib.get_close_matches(w, self.word2vec.keys(), n=1, cutoff=0.5)[0]
+                print("WARNING : Word not found in model: " + w + " replaced by " + grid[i])
+                grid_labels[i//5][i%5].config(text=grid[i])
 
     def get_action(self, hint, grid):
         changed_words = {}
@@ -24,11 +31,11 @@ class CodeNameAI:
             w = grid[i]
             if w not in self.word2vec.keys() and w is not None:
                 grid[i] = difflib.get_close_matches(w, self.word2vec.keys(), n=1, cutoff=0.5)[0]
-                print("Word not found in model: " + w + " replaced by " + grid[i])
+                print("WARNING : Word not found in model: " + w + " replaced by " + grid[i])
                 changed_words[grid[i]] = w
         if hint not in self.word2vec.keys():
             n_hint = difflib.get_close_matches(hint, self.word2vec.keys(), n=1, cutoff=0.5)[0]
-            print("Hint not found in model: " + hint + " replaced by " + n_hint)
+            print("WARNING : Hint not found in model: " + hint + " replaced by " + n_hint)
             hint = n_hint
         similarities = []
         for w in grid:
@@ -74,8 +81,9 @@ class CodeNameAI:
         return chain(*map(lambda x: combinations(ss, x), range(1, len(ss) + 1)))
 
     def most_similar(self, positives, neutrals, negatives, murderer):
-        mean_vector = 8*np.sum(positives,axis=0) - np.sum(neutrals, axis=0) - 2*np.sum(negatives, axis=0) - 5*murderer
-        mean_vector /= 8*len(positives) + len(neutrals) + 2*len(negatives) - 5
+        a, b, c, d = self.weights
+        mean_vector = a*np.sum(positives,axis=0) - b*np.sum(neutrals, axis=0) - c*np.sum(negatives, axis=0) - d*murderer
+        mean_vector /= a*len(positives) + b*len(neutrals) + c*len(negatives) - d*1
         scores = [(self.weight(len(positives))*self.cosine_similarity(self.word2vec[w], mean_vector),w) for w in self.word2vec]
         scores.sort(key=lambda x: x[0], reverse=True)
         return scores
